@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Random;
 
 import org.patchca.color.ColorFactory;
@@ -15,9 +16,11 @@ import org.patchca.utils.encoder.EncoderHelper;
 import org.patchca.word.RandomWordFactory;
 import org.patchca.word.WordFactory;
 
+import com.blade.web.http.Request;
 import com.blade.web.http.Response;
 import com.blade.web.http.wrapper.Session;
 
+import blade.kit.StringKit;
 import blade.kit.logging.Logger;
 import blade.kit.logging.LoggerFactory;
 
@@ -30,6 +33,8 @@ public class PatchcaService {
 
 	private ConfigurableCaptchaService cs = null;
 	private static Random random = new Random();
+	
+	private RandomWordFactory wf;
 	
 	private PatchcaService() {
 		cs = new ConfigurableCaptchaService();
@@ -49,16 +54,36 @@ public class PatchcaService {
 				return new Color(c[0], c[1], c[2]);
 			}
 		});
-		RandomWordFactory wf = new RandomWordFactory();
+		wf = new RandomWordFactory();
 		wf.setCharacters("23456789abcdefghigkmnpqrstuvwxyzABCDEFGHIGKLMNPQRSTUVWXYZ");
-		wf.setMaxLength(4);
 		wf.setMinLength(4);
+		wf.setMaxLength(6);
 		cs.setWordFactory(wf);
 		cs.setFilterFactory(new DiffuseRippleFilterFactory());
 	}
 	
 	public static PatchcaService get(){
 		return new PatchcaService();
+	}
+	
+	public PatchcaService length(int lenth){
+		wf.setMaxLength(lenth);
+		wf.setMinLength(lenth);
+		cs.setWordFactory(wf);
+		return this;
+	}
+	
+	public PatchcaService length(int min, int max){
+		wf.setMinLength(min);
+		wf.setMaxLength(max);
+		cs.setWordFactory(wf);
+		return this;
+	}
+	
+	public PatchcaService size(int width, int height){
+		cs.setWidth(width);  
+	    cs.setHeight(height);  
+		return this;
 	}
 	
 	public PatchcaService color(ColorFactory colorFactory){
@@ -76,12 +101,20 @@ public class PatchcaService {
 		return this;
 	}
 	
-	public void session(Session session, Response response, String patchca){
+	public void render(Request request, Response response){
+		render(request, response, "patchca");
+	}
+	
+	public void render(Request request, Response response, String patchca){
 		try {
+			Session session = request.session();
 			setResponseHeaders(response);
-			String token = EncoderHelper.getChallangeAndWriteImage(cs, "png", response.outputStream());
+			OutputStream out = response.outputStream();
+			String token = EncoderHelper.getChallangeAndWriteImage(cs, "png", out);
 			session.attribute(patchca, token);
-			LOGGER.debug("current sessionid = {}, token = {}", session.id(), token);
+			out.flush();
+			out.close();
+			LOGGER.debug("current sessionid = [{}], token = [{}]", session.id(), token);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -96,6 +129,23 @@ public class PatchcaService {
 		response.header("Date", time + "");
 		response.header("Expires", time + "");
     }
+	
+	public boolean validation(String patchca, Response response){
+		return validation(patchca, "png", response);
+	}
+	
+	public boolean validation(String patchca, String imgType, Response response){
+		try {
+			String token = EncoderHelper.getChallangeAndWriteImage(cs, imgType, response.outputStream());
+			if(StringKit.isBlank(patchca)){
+				return false;
+			}
+			return token.equalsIgnoreCase(patchca);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
 	public String token(String imgType, Response response){
 		try {

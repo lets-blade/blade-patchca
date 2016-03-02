@@ -9,7 +9,7 @@
 		<version>1.0</version>
 	</parent>
 	<artifactId>blade-patchca</artifactId>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 	<name>blade-patchca</name>
 	<url>https://github.com/biezhi/blade/tree/master/blade-patchca</url>
 
@@ -17,7 +17,13 @@
 		<dependency>
 			<groupId>com.bladejava</groupId>
 			<artifactId>blade-core</artifactId>
-			<version>${blade.version}</version>
+			<version>1.6.0M1</version>
 		</dependency>
+		<dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
 	</dependencies>
 </project>
