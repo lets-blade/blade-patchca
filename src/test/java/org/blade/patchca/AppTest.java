@@ -2,14 +2,15 @@ package org.blade.patchca;
 
 import java.io.IOException;
 
-import com.blade.patchca.PatchcaService;
+import com.blade.patchca.DefaultPatchca;
+import com.blade.patchca.Patchca;
 
 public class AppTest {
 	
 	public static void main(String[] args) throws IOException {
 		
-		PatchcaService service = PatchcaService.get();
+		Patchca patchca = new DefaultPatchca();
 		// 生成一个验证码到本地
-		service.create("F:/aaa.png", "png");
+		patchca.create("F:/aaa.png", "png");
 	}
 }

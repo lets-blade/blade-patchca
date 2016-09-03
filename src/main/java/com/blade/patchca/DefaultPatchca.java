@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  * DefaultPatchca
  */
-public class DefaultPatchca {
+public class DefaultPatchca implements Patchca {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultPatchca.class);
 
