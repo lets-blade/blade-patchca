@@ -1,15 +1,6 @@
 package com.blade.patchca;
 
-import java.awt.Color;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Random;
-
 import com.blade.kit.StringKit;
-import com.blade.kit.json.ParseException;
 import com.blade.mvc.http.Request;
 import com.blade.mvc.http.Response;
 import com.blade.mvc.http.wrapper.Session;
@@ -22,6 +13,10 @@ import org.patchca.word.RandomWordFactory;
 import org.patchca.word.WordFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.*;
+import java.io.*;
+import java.util.Random;
 
 /**
  * DefaultPatchca
@@ -36,9 +31,7 @@ public class DefaultPatchca implements Patchca {
 	private RandomWordFactory wf;
 	
 	public DefaultPatchca() {
-		cs = new ConfigurableCaptchaService();
-		// cs.setColorFactory(new SingleColorFactory(new Color(25, 60, 170)));
-		cs.setColorFactory(new ColorFactory() {
+		this(new ColorFactory() {
 			@Override
 			public Color getColor(int x) {
 				int[] c = new int[3];
@@ -53,6 +46,11 @@ public class DefaultPatchca implements Patchca {
 				return new Color(c[0], c[1], c[2]);
 			}
 		});
+	}
+
+	public DefaultPatchca(ColorFactory colorFactory) {
+		cs = new ConfigurableCaptchaService();
+		cs.setColorFactory(colorFactory);
 		wf = new RandomWordFactory();
 		wf.setCharacters("23456789abcdefghigkmnpqrstuvwxyzABCDEFGHIGKLMNPQRSTUVWXYZ");
 		wf.setMinLength(4);
@@ -61,37 +59,37 @@ public class DefaultPatchca implements Patchca {
 		cs.setFilterFactory(new DiffuseRippleFilterFactory());
 	}
 	
-	public DefaultPatchca length(int lenth){
+	public Patchca length(int lenth){
 		wf.setMaxLength(lenth);
 		wf.setMinLength(lenth);
 		cs.setWordFactory(wf);
 		return this;
 	}
 	
-	public DefaultPatchca length(int min, int max){
+	public Patchca length(int min, int max){
 		wf.setMinLength(min);
 		wf.setMaxLength(max);
 		cs.setWordFactory(wf);
 		return this;
 	}
 	
-	public DefaultPatchca size(int width, int height){
+	public Patchca size(int width, int height){
 		cs.setWidth(width);  
 	    cs.setHeight(height);  
 		return this;
 	}
 	
-	public DefaultPatchca color(ColorFactory colorFactory){
+	public Patchca color(ColorFactory colorFactory){
 		cs.setColorFactory(colorFactory);
 		return this;
 	}
 	
-	public DefaultPatchca word(WordFactory wordFactory){
+	public Patchca word(WordFactory wordFactory){
 		cs.setWordFactory(wordFactory);
 		return this;
 	}
 	
-	public DefaultPatchca filter(FilterFactory filterFactory){
+	public Patchca filter(FilterFactory filterFactory){
 		cs.setFilterFactory(filterFactory);
 		return this;
 	}
