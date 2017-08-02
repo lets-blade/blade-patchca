@@ -1,32 +1,42 @@
 <?xml version="1.0"?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.bladejava</groupId>
-		<artifactId>blade-root</artifactId>
-		<version>1.0</version>
-	</parent>
+    <groupId>com.bladejava</groupId>
+    <artifactId>blade-patchca</artifactId>
+    <version>1.1.0</version>
 
-	<artifactId>blade-patchca</artifactId>
-	<version>1.0.5</version>
-	<name>blade-patchca</name>
-	<url>https://github.com/bladejava/blade-patchca</url>
+    <name>blade-patchca</name>
+    <url>https://github.com/bladejava/blade-patchca</url>
 
-	<dependencies>
-		<dependency>
-			<groupId>com.bladejava</groupId>
-			<artifactId>blade-core</artifactId>
-			<version>1.7.0-alpha</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.0.1</version>
+    <dependencies>
+        <dependency>
+            <groupId>com.bladejava</groupId>
+            <artifactId>blade-mvc</artifactId>
+            <version>2.0.1-alpha3</version>
             <scope>provided</scope>
         </dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.18</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

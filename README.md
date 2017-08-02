@@ -12,7 +12,7 @@ You can generate verification code picture like this:
   <dependency>
     <groupId>com.bladejava</groupId>
     <artifactId>blade-patchca</artifactId>
-    <version>1.0.3</version>
+    <version>1.1.0</version>
   </dependency>
 ```
 - Add following dependency in your code
