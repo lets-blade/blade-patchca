@@ -33,20 +33,17 @@ public class DefaultPatchca implements Patchca {
     private RandomWordFactory wf;
 
     public DefaultPatchca() {
-        this(new ColorFactory() {
-            @Override
-            public Color getColor(int x) {
-                int[] c = new int[3];
-                int   i = random.nextInt(c.length);
-                for (int fi = 0; fi < c.length; fi++) {
-                    if (fi == i) {
-                        c[fi] = random.nextInt(71);
-                    } else {
-                        c[fi] = random.nextInt(256);
-                    }
+        this(x -> {
+            int[] c = new int[3];
+            int   i = random.nextInt(c.length);
+            for (int fi = 0; fi < c.length; fi++) {
+                if (fi == i) {
+                    c[fi] = random.nextInt(71);
+                } else {
+                    c[fi] = random.nextInt(256);
                 }
-                return new Color(c[0], c[1], c[2]);
             }
+            return new Color(c[0], c[1], c[2]);
         });
     }
 
