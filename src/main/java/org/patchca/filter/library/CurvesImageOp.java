@@ -28,8 +28,8 @@ import java.util.Random;
 
 public class CurvesImageOp extends AbstractImageOp {
 
-	private float strokeMin;
-	private float strokeMax;
+	private float strokeMin = 2;
+	private float strokeMax = 4;
 	private ColorFactory colorFactory = new SingleColorFactory();
 
 	public float getStrokeMin() {
@@ -107,7 +107,7 @@ public class CurvesImageOp extends AbstractImageOp {
 		}
 		for (int i = 0; i < xPointsSpline.length - 1; i++) {
 			g2.setColor(colorFactory.getColor(i));
-			g2.setStroke(new BasicStroke(2 + 2 * r.nextFloat()));
+			g2.setStroke(new BasicStroke(strokeMin + (strokeMax - strokeMin) * r.nextFloat()));
 			g2.drawLine(xPointsSpline[i], yPointsSpline[i], xPointsSpline[i + 1], yPointsSpline[i + 1]);
 		}
 		return src;
