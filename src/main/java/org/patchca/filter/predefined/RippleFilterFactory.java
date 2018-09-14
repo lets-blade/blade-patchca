@@ -47,10 +47,11 @@ public class RippleFilterFactory extends AbstractFilterFactory {
 	@Override
 	public List<BufferedImageOp> getFilters() {
 		if (filters == null) {
-			filters = new ArrayList<BufferedImageOp>();
-			filters.addAll(getPreRippleFilters());
-			filters.add(ripple);
-			filters.addAll(getPostRippleFilters());
+			ArrayList<BufferedImageOp> tmp = new ArrayList<BufferedImageOp>();
+			tmp.addAll(getPreRippleFilters());
+			tmp.add(ripple);
+			tmp.addAll(getPostRippleFilters());
+			filters = tmp;
 		}
 		return filters;
 	}
