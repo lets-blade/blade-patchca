@@ -1,10 +1,18 @@
 package com.blade.patchca;
 
-import com.blade.kit.StringKit;
+import com.blade.mvc.WebContext;
 import com.blade.mvc.http.Request;
 import com.blade.mvc.http.Response;
 import com.blade.mvc.http.Session;
-import com.blade.mvc.wrapper.OutputStreamWrapper;
+import com.blade.server.netty.HttpConst;
+import com.blade.server.netty.ProgressiveFutureListener;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.DefaultFileRegion;
+import io.netty.handler.codec.http.*;
+import io.netty.handler.ssl.SslHandler;
+import io.netty.handler.stream.ChunkedFile;
 import lombok.extern.slf4j.Slf4j;
 import org.patchca.color.ColorFactory;
 import org.patchca.filter.FilterFactory;
@@ -15,10 +23,7 @@ import org.patchca.word.RandomWordFactory;
 import org.patchca.word.WordFactory;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Random;
 
 /**
@@ -27,10 +32,12 @@ import java.util.Random;
 @Slf4j
 public class DefaultPatchca implements Patchca {
 
-    private        ConfigurableCaptchaService cs     = null;
-    private static Random                     random = new Random();
+    private static final String DEFAULT_SESSION_KEY = "patchca_code";
 
-    private RandomWordFactory wf;
+    private static Random random = new Random();
+
+    private ConfigurableCaptchaService cs;
+    private RandomWordFactory          wf;
 
     public DefaultPatchca() {
         this(x -> {
@@ -93,20 +100,67 @@ public class DefaultPatchca implements Patchca {
         return this;
     }
 
-    public void render(Request request, Response response) throws PatchcaException {
-        render(request, response, "patchca");
+    @Override
+    public String render() throws PatchcaException {
+        return this.render(DEFAULT_SESSION_KEY);
     }
 
-    public void render(Request request, Response response, String patchca) throws PatchcaException {
+    @Override
+    public String render(String sessionKey) throws PatchcaException {
         try {
-            Session session = request.session();
-            setResponseHeaders(response);
+            Session               session = WebContext.request().session();
+            Request               request = WebContext.request();
+            ChannelHandlerContext ctx     = WebContext.handlerContext();
 
-            OutputStreamWrapper out   = response.outputStream();
-            String              token = EncoderHelper.getChallangeAndWriteImage(cs, "png", out.getRaw());
-            session.attribute(patchca, token);
-            out.close();
+            File             file  = File.createTempFile("blade_code_", ".png");
+            FileOutputStream fos   = new FileOutputStream(file);
+            String           token = EncoderHelper.getChallangeAndWriteImage(cs, "png", fos);
+            session.attribute(sessionKey, token);
+
             log.debug("current sessionid = [{}], token = [{}]", session.id(), token);
+
+            DefaultHttpResponse httpResponse = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
+            setResponseHeaders(WebContext.response());
+
+            RandomAccessFile raf = null;
+            try {
+                raf = new RandomAccessFile(file, "r");
+                long fileLength = raf.length();
+
+                httpResponse.headers().set(HttpConst.CONTENT_LENGTH, fileLength);
+                if (request.keepAlive()) {
+                    httpResponse.headers().set(HttpConst.CONNECTION, HttpConst.KEEP_ALIVE);
+                }
+
+                // Write the initial line and the header.
+                ctx.write(httpResponse);
+
+                // Write the content.
+                ChannelFuture sendFileFuture;
+                ChannelFuture lastContentFuture;
+                if (ctx.pipeline().get(SslHandler.class) == null) {
+                    sendFileFuture = ctx.write(new DefaultFileRegion(raf.getChannel(), 0, fileLength), ctx.newProgressivePromise());
+                    // Write the end marker.
+                    lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+
+                } else {
+                    sendFileFuture = ctx.writeAndFlush(
+                            new HttpChunkedInput(new ChunkedFile(raf, 0, fileLength, 8192)),
+                            ctx.newProgressivePromise());
+                    // HttpChunkedInput will write the end marker (LastHttpContent) for us.
+                    lastContentFuture = sendFileFuture;
+                }
+
+                sendFileFuture.addListener(ProgressiveFutureListener.build(raf));
+
+                // Decide whether to close the connection or not.
+                if (!request.keepAlive()) {
+                    lastContentFuture.addListener(ChannelFutureListener.CLOSE);
+                }
+            } catch (FileNotFoundException e) {
+                throw new PatchcaException(e);
+            }
+            return token;
         } catch (IOException e) {
             throw new PatchcaException(e);
         }
@@ -122,48 +176,25 @@ public class DefaultPatchca implements Patchca {
         response.header("Expires", time + "");
     }
 
-    public boolean validation(String patchca, Response response) {
-        return validation(patchca, "png", response);
+    @Override
+    public boolean verify(String code) {
+        return this.verify(code, DEFAULT_SESSION_KEY);
     }
 
-    public boolean validation(String patchca, String imgType, Response response) {
-        try {
-            String token = EncoderHelper.getChallangeAndWriteImage(cs, imgType, response.outputStream().getRaw());
-            if (StringKit.isBlank(patchca)) {
-                return false;
-            }
-            return token.equalsIgnoreCase(patchca);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
+    @Override
+    public boolean verify(String code, String sessionKey) {
+        Session session     = WebContext.request().session();
+        String  sessionCode = session.attribute(sessionKey);
+        return code.equals(sessionCode);
     }
 
-    public String token(String imgType, Response response) throws PatchcaException {
-        try {
-            return EncoderHelper.getChallangeAndWriteImage(cs, imgType, response.outputStream().getRaw());
-        } catch (IOException e) {
-            throw new PatchcaException(e);
-        }
-    }
-
-    public String token(Response response) throws PatchcaException {
-        try {
-            String token = EncoderHelper.getChallangeAndWriteImage(cs, "png", response.outputStream().getRaw());
-            return token;
-        } catch (IOException e) {
-            throw new PatchcaException(e);
-        }
-    }
-
+    @Override
     public File create(String imgPath, String imgType) throws PatchcaException {
         try {
             FileOutputStream fos = new FileOutputStream(imgPath);
             EncoderHelper.getChallangeAndWriteImage(cs, imgType, fos);
             fos.close();
             return new File(imgPath);
-        } catch (FileNotFoundException e) {
-            throw new PatchcaException(e);
         } catch (IOException e) {
             throw new PatchcaException(e);
         }

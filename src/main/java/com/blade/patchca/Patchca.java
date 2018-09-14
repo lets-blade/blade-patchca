@@ -1,7 +1,5 @@
 package com.blade.patchca;
 
-import com.blade.mvc.http.Request;
-import com.blade.mvc.http.Response;
 import org.patchca.color.ColorFactory;
 import org.patchca.filter.FilterFactory;
 import org.patchca.word.WordFactory;
@@ -10,17 +8,13 @@ import java.io.File;
 
 public interface Patchca {
 
-    void render(Request request, Response response) throws PatchcaException;
+    String render() throws PatchcaException;
 
-    void render(Request request, Response response, String patchca) throws PatchcaException;
+    String render(String sessionKey) throws PatchcaException;
 
-    boolean validation(String patchca, Response response);
+    boolean verify(String code);
 
-    boolean validation(String patchca, String imgType, Response response);
-
-    String token(String imgType, Response response) throws PatchcaException;
-
-    String token(Response response) throws PatchcaException;
+    boolean verify(String code, String sessionKey);
 
     File create(String imgPath, String imgType) throws PatchcaException;
 
