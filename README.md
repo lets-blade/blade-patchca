@@ -10,7 +10,7 @@ You can generate verification code picture like this:
 
 ### Steps to Integrate
 
-- Add following dependency in your pom.xml
+- Add following dependency in your `pom.xml`
 
 ```xml
   <dependency>
