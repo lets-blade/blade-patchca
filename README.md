@@ -13,11 +13,11 @@ You can generate verification code picture like this:
 - Add following dependency in your `pom.xml`
 
 ```xml
-  <dependency>
+<dependency>
     <groupId>com.bladejava</groupId>
     <artifactId>blade-patchca</artifactId>
-    <version>1.1.1</version>
-  </dependency>
+    <version>1.1.2</version>
+</dependency>
 ```
 
 - Add following dependency in your code

@@ -6,7 +6,7 @@
 
     <groupId>com.bladejava</groupId>
     <artifactId>blade-patchca</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 
     <name>blade-patchca</name>
     <url>https://github.com/bladejava/blade-patchca</url>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.bladejava</groupId>
             <artifactId>blade-mvc</artifactId>
-            <version>2.0.11.ALPHA</version>
+            <version>2.0.11.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -108,9 +108,10 @@ public class DefaultPatchca implements Patchca {
     @Override
     public String render(String sessionKey) throws PatchcaException {
         try {
-            Session               session = WebContext.request().session();
-            Request               request = WebContext.request();
-            ChannelHandlerContext ctx     = WebContext.handlerContext();
+            Session session = WebContext.request().session();
+            Request request = WebContext.request();
+
+            ChannelHandlerContext ctx = WebContext.get().getChannelHandlerContext();
 
             File             file  = File.createTempFile("blade_code_", ".png");
             FileOutputStream fos   = new FileOutputStream(file);
