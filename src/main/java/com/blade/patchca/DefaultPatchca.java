@@ -1,11 +1,11 @@
 package com.blade.patchca;
 
-import com.blade.mvc.WebContext;
-import com.blade.mvc.http.Request;
-import com.blade.mvc.http.Response;
-import com.blade.mvc.http.Session;
-import com.blade.server.netty.HttpConst;
-import com.blade.server.netty.ProgressiveFutureListener;
+import com.hellokaton.blade.mvc.WebContext;
+import com.hellokaton.blade.mvc.http.Request;
+import com.hellokaton.blade.mvc.http.Response;
+import com.hellokaton.blade.mvc.http.Session;
+import com.hellokaton.blade.server.NettyHttpConst;
+import com.hellokaton.blade.server.ProgressiveFutureListener;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,20 +34,20 @@ public class DefaultPatchca implements Patchca {
 
     private static final String DEFAULT_SESSION_KEY = "patchca_code";
 
-    private static Random random = new Random();
+    private static final Random RANDOM = new Random();
 
-    private ConfigurableCaptchaService cs;
-    private RandomWordFactory          wf;
+    private final ConfigurableCaptchaService cs;
+    private final RandomWordFactory wf;
 
     public DefaultPatchca() {
         this(x -> {
             int[] c = new int[3];
-            int   i = random.nextInt(c.length);
+            int i = RANDOM.nextInt(c.length);
             for (int fi = 0; fi < c.length; fi++) {
                 if (fi == i) {
-                    c[fi] = random.nextInt(71);
+                    c[fi] = RANDOM.nextInt(71);
                 } else {
-                    c[fi] = random.nextInt(256);
+                    c[fi] = RANDOM.nextInt(256);
                 }
             }
             return new Color(c[0], c[1], c[2]);
@@ -113,9 +113,9 @@ public class DefaultPatchca implements Patchca {
 
             ChannelHandlerContext ctx = WebContext.get().getChannelHandlerContext();
 
-            File             file  = File.createTempFile("blade_code_", ".png");
-            FileOutputStream fos   = new FileOutputStream(file);
-            String           token = EncoderHelper.getChallangeAndWriteImage(cs, "png", fos);
+            File file = File.createTempFile("blade_code_", ".png");
+            FileOutputStream fos = new FileOutputStream(file);
+            String token = EncoderHelper.getChallangeAndWriteImage(cs, "png", fos);
             session.attribute(sessionKey, token);
 
             log.debug("current sessionid = [{}], token = [{}]", session.id(), token);
@@ -128,9 +128,9 @@ public class DefaultPatchca implements Patchca {
                 raf = new RandomAccessFile(file, "r");
                 long fileLength = raf.length();
 
-                httpResponse.headers().set(HttpConst.CONTENT_LENGTH, fileLength);
+                httpResponse.headers().set(NettyHttpConst.CONTENT_LENGTH, fileLength);
                 if (request.keepAlive()) {
-                    httpResponse.headers().set(HttpConst.CONNECTION, HttpConst.KEEP_ALIVE);
+                    httpResponse.headers().set(NettyHttpConst.CONNECTION, NettyHttpConst.KEEP_ALIVE);
                 }
 
                 // Write the initial line and the header.
@@ -184,8 +184,8 @@ public class DefaultPatchca implements Patchca {
 
     @Override
     public boolean verify(String code, String sessionKey) {
-        Session session     = WebContext.request().session();
-        String  sessionCode = session.attribute(sessionKey);
+        Session session = WebContext.request().session();
+        String sessionCode = session.attribute(sessionKey);
         return code.equals(sessionCode);
     }
 
@@ -200,4 +200,5 @@ public class DefaultPatchca implements Patchca {
             throw new PatchcaException(e);
         }
     }
+
 }

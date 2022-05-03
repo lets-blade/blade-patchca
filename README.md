@@ -14,9 +14,9 @@ You can generate verification code picture like this:
 
 ```xml
 <dependency>
-    <groupId>com.bladejava</groupId>
+    <groupId>com.hellokaton</groupId>
     <artifactId>blade-patchca</artifactId>
-    <version>1.1.2</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
