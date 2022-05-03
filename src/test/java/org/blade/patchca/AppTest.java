@@ -2,9 +2,9 @@ package org.blade.patchca;
 
 import java.io.IOException;
 
-import com.blade.patchca.DefaultPatchca;
-import com.blade.patchca.Patchca;
-import com.blade.patchca.PatchcaException;
+import com.hellokaton.blade.patchca.DefaultPatchca;
+import com.hellokaton.blade.patchca.Patchca;
+import com.hellokaton.blade.patchca.PatchcaException;
 
 public class AppTest {
 

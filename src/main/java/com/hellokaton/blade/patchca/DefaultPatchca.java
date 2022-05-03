@@ -1,4 +1,4 @@
-package com.blade.patchca;
+package com.hellokaton.blade.patchca;
 
 import com.hellokaton.blade.mvc.WebContext;
 import com.hellokaton.blade.mvc.http.Request;

@@ -1,4 +1,4 @@
-package com.blade.patchca;
+package com.hellokaton.blade.patchca;
 
 public class PatchcaException extends Exception {
 
