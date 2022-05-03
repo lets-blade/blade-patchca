@@ -37,21 +37,21 @@ fos.close();
 
 ```java
 switch (new Random().nextInt(5)) {
-			case 0:
-				cs.setFilterFactory(new CurvesRippleFilterFactory(cs.getColorFactory()));
-				break;
-			case 1:
-				cs.setFilterFactory(new MarbleRippleFilterFactory());
-				break;
-			case 2:
-				cs.setFilterFactory(new DoubleRippleFilterFactory());
-				break;
-			case 3:
-				cs.setFilterFactory(new WobbleRippleFilterFactory());
-				break;
-			case 4:
-				cs.setFilterFactory(new DiffuseRippleFilterFactory());
-				break;
+    case 0:
+        cs.setFilterFactory(new CurvesRippleFilterFactory(cs.getColorFactory()));
+        break;
+    case 1:
+        cs.setFilterFactory(new MarbleRippleFilterFactory());
+        break;
+    case 2:
+        cs.setFilterFactory(new DoubleRippleFilterFactory());
+        break;
+    case 3:
+        cs.setFilterFactory(new WobbleRippleFilterFactory());
+        break;
+    case 4:
+        cs.setFilterFactory(new DiffuseRippleFilterFactory());
+        break;
 }
 ```
 
