@@ -1,5 +1,7 @@
 # Blade-Patchca: verification code library for Java
 
+<a href="http://search.maven.org/#search%7Cga%7C1%7Cblade-patchca"><img src="https://img.shields.io/maven-central/v/com.hellokaton/blade-patchca.svg?style=flat-square"></a>
+
 ## Overview
 
 Simple yet powerful verification code library written in Java with zero dependency.
